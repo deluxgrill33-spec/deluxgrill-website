@@ -728,4 +728,27 @@ document.addEventListener('keydown',function(e){if(!ADMIN&&e.key==='Enter'&&e.ta
 renderCust();
 (async function(){try{var u=await claude.use('user');IS_OWNER=!!(u&&u.isOwner());if(IS_OWNER&&!ADMIN)renderCust()}catch(e){}})();
 
+/* Live-Konfiguration aus Firestore (config/site): Preise, Angebote, Öffnungszeiten */
+(function(){
+  var F=window.FB;if(!F)return;
+  var BASE={items:{},opts:{},offers:JSON.parse(JSON.stringify(S.shop.offers||[])),shop:{}};
+  S.categories.forEach(function(c){c.items.forEach(function(i){BASE.items[i.id]={price:i.price,active:i.active}})});
+  S.groups.forEach(function(g){BASE.opts[g.id]=(g.options||[]).map(function(o){return o.price})});
+  ['open','auto','hours','hoursNote','hoursNoteTr','notice','freeDrink'].forEach(function(k){BASE.shop[k]=S.shop[k]===undefined?undefined:JSON.parse(JSON.stringify(S.shop[k]))});
+  function apply(d){
+    if(!d||typeof d!=='object')return;
+    S.categories.forEach(function(c){c.items.forEach(function(i){var b=BASE.items[i.id],o=d.items&&d.items[i.id];i.price=b.price;i.active=b.active;if(o){if(typeof o.p==='number')i.price=o.p;if(o.a===false)i.active=false;else if(o.a===true)i.active=true}})});
+    S.groups.forEach(function(g){var a=d.opts&&d.opts[g.id];(g.options||[]).forEach(function(o,ix){o.price=BASE.opts[g.id][ix];if(a&&typeof a[ix]==='number')o.price=a[ix]})});
+    if(d.offers){S.shop.offers=d.offers.map(function(o){var b=BASE.offers.find(function(x){return x.id===o.id});var r=JSON.parse(JSON.stringify(o));if(b){if(!r.img&&b.img&&!r.noimg)r.img=b.img;if(b.title===r.title&&b.text===r.text&&b.tr)r.tr=b.tr}return r})}else S.shop.offers=JSON.parse(JSON.stringify(BASE.offers));
+    var sd=d.shop||{};
+    ['open','auto','hours','hoursNote','notice','freeDrink'].forEach(function(k){if(sd[k]!==undefined)S.shop[k]=sd[k];else if(BASE.shop[k]!==undefined)S.shop[k]=JSON.parse(JSON.stringify(BASE.shop[k]));else delete S.shop[k]});
+    if(sd.hoursNote!==undefined&&sd.hoursNote!==BASE.shop.hoursNote)delete S.shop.hoursNoteTr;else if(BASE.shop.hoursNoteTr)S.shop.hoursNoteTr=BASE.shop.hoursNoteTr;
+    try{if(typeof OVK==='undefined'||!OVK)renderCust()}catch(e){}
+  }
+  try{var c=localStorage.getItem('dg-cfg');if(c)apply(JSON.parse(c))}catch(e){}
+  try{fetch('https://firestore.googleapis.com/v1/projects/'+F.projectId+'/databases/(default)/documents/config/site?key='+F.apiKey).then(function(r){return r.ok?r.json():null}).then(function(j){
+    if(!j||!j.fields||!j.fields.data)return;var s=j.fields.data.stringValue;if(!s)return;
+    try{localStorage.setItem('dg-cfg',s)}catch(e){}apply(JSON.parse(s))}).catch(function(){})}catch(e){}
+})();
+
 </script></body></html>
