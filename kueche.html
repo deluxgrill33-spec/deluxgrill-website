@@ -1,0 +1,102 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Delux Grill – Küche</title>
+<style>
+[hidden]{display:none!important}
+body{font:16px system-ui,sans-serif;margin:0;background:#111;color:#eee}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;background:#222;position:sticky;top:0}
+header b{flex:1;font-size:18px}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:#e8a317;color:#000;font-weight:700;cursor:pointer}
+button.g{background:#444;color:#eee}
+#login{max-width:320px;margin:60px auto;display:flex;flex-direction:column;gap:10px}
+input{font:inherit;padding:10px;border-radius:8px;border:1px solid #555;background:#222;color:#eee}
+.o{margin:12px 16px;padding:12px;border-radius:10px;background:#1c1c1c;border-left:6px solid #888}
+.o.new{border-color:#e8a317;background:#2a2410}
+.o pre{white-space:pre-wrap;font:15px/1.4 system-ui;margin:8px 0}
+.o .m{color:#aaa;font-size:13px}
+#tk{display:none}#tkq svg{width:34mm;height:34mm;display:block;margin:2mm auto 0}#tkq .l{text-align:center;font:900 14px/1.2 Arial,sans-serif;-webkit-text-stroke:0}
+.tabs{display:flex;gap:8px;padding:10px 16px 0}
+.tabs button{background:#333;color:#eee}.tabs button.on{background:#e8a317;color:#000}
+.set{margin:10px 16px;padding:12px;border-radius:10px;background:#1c1c1c;display:grid;gap:10px}
+.set label{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+select{font:inherit;padding:8px;border-radius:8px;background:#222;color:#eee;border:1px solid #555}
+.o button.r{background:#7a1f1f;color:#fff}
+@media print{html,body{margin:0!important;padding:0!important;height:auto!important;background:#fff!important}body>*:not(#tk){display:none!important}#tk{display:block;color:#000;background:#fff;font:900 21px/1.25 Arial,Helvetica,sans-serif;-webkit-text-stroke:.5px #000;white-space:pre-wrap;word-break:break-word;width:auto;margin:0;padding:2mm 3mm;box-sizing:border-box}}
+</style></head><body>
+<div id="login"><b>Küche – Anmeldung</b><input id="em" type="email" placeholder="E-Mail"><input id="pw" type="password" placeholder="Passwort"><button id="go">Anmelden</button><div id="err" style="color:#f66"></div></div>
+<div id="app" hidden>
+<header><b>🍽 Bestellungen</b><span id="st"></span><button id="snd" class="g">🔔 Ton starten</button><button class="g" id="gs">⚙ Einstellungen</button><button class="g" id="out">Abmelden</button></header>
+<div class="set" id="set" hidden>
+<label>🔔 Ton <select id="snds"><option value="glocke">Glocke</option><option value="alarm">Alarm (laut)</option><option value="klingel">Klingel</option><option value="sanft">Sanft</option></select> <button class="g" id="tst">▶ Test</button></label>
+<label>🔊 Lautstärke <input type="range" id="vol" min="10" max="100" value="80"></label>
+<label>🔁 Wiederholen alle <select id="rep"><option value="0">nie</option><option value="15">15 s</option><option value="30">30 s</option><option value="60">60 s</option></select> bis „Erledigt"</label>
+<label><input type="checkbox" id="ap" checked> 🖨 Automatisch drucken bei neuer Bestellung</label>
+<label>🖨 Anzahl Ausdrucke <select id="cp"><option value="1">1×</option><option value="2">2×</option></select></label>
+</div>
+<div class="tabs"><button id="tn" class="on">Neu</button><button id="ta">Alle</button><button id="td">Archiv (erledigt)</button></div>
+<div id="list"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<div id="tk"><span id="tkt"></span><div id="tkq"></div></div>
+<script type="module">
+import {firebaseConfig} from './firebase-config.js';
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getFirestore,collection,query,orderBy,limit,onSnapshot,updateDoc,deleteDoc,doc} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const $=s=>document.querySelector(s);let ctx=null,first=true,unsub=null,ring=null,TAB='n',DOCS=[],armed=null;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const CFG=(()=>{try{return Object.assign({snd:'glocke',vol:80,rep:30,ap:true,cp:1},JSON.parse(localStorage.getItem('dg-k')||'{}'))}catch(e){return{snd:'glocke',vol:80,rep:30,ap:true,cp:1}}})();
+const save=()=>{try{localStorage.setItem('dg-k',JSON.stringify(CFG))}catch(e){}};
+$('#snds').value=CFG.snd;$('#vol').value=CFG.vol;$('#rep').value=CFG.rep;$('#ap').checked=CFG.ap;$('#cp').value=CFG.cp;
+$('#snds').onchange=e=>{CFG.snd=e.target.value;save();beep()};
+$('#vol').onchange=e=>{CFG.vol=+e.target.value;save();beep()};
+$('#rep').onchange=e=>{CFG.rep=+e.target.value;save();arm()};
+$('#ap').onchange=e=>{CFG.ap=e.target.checked;save()};
+$('#cp').onchange=e=>{CFG.cp=+e.target.value;save()};
+$('#tst').onclick=()=>{startAudio();beep()};
+$('#gs').onclick=()=>{$('#set').hidden=!$('#set').hidden};
+$('#go').onclick=()=>signInWithEmailAndPassword(auth,$('#em').value,$('#pw').value).catch(e=>$('#err').textContent=e.code);
+$('#out').onclick=()=>signOut(auth);
+function startAudio(){ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume()}
+$('#snd').onclick=()=>{startAudio();beep();$('#snd').textContent='🔔 Ton an'};
+function tone(f,t,d,ty){const o=ctx.createOscillator(),g=ctx.createGain(),v=CFG.vol/100;o.type=ty||'sine';o.frequency.value=f;o.connect(g);g.connect(ctx.destination);const a=ctx.currentTime+t;g.gain.setValueAtTime(0,a);g.gain.linearRampToValueAtTime(v,a+.02);g.gain.linearRampToValueAtTime(0,a+d);o.start(a);o.stop(a+d+.02)}
+function beep(){if(!ctx)return;const k=CFG.snd;
+ if(k==='alarm'){for(let i=0;i<6;i++)tone(i%2?800:600,i*.22,.2,'square')}
+ else if(k==='klingel'){for(let i=0;i<3;i++){tone(1046,i*.6,.25,'sine');tone(784,i*.6+.27,.3,'sine')}}
+ else if(k==='sanft'){tone(660,0,.3,'triangle');tone(880,.3,.3,'triangle');tone(1100,.6,.5,'triangle')}
+ else{[0,.3,.6].forEach(t=>tone(880,t,.2,'sine'))}}
+function arm(){clearInterval(ring);const n=DOCS.filter(d=>d.status==='new').length;if(n&&CFG.rep>0)ring=setInterval(beep,CFG.rep*1000)}
+function ticket(o){
+ const t='DELUX GRILL\n'+o.no+'  '+(o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):'')+'\n----------------------\n'+o.text.replace(/\*/g,'')+'\n----------------------\n';
+ $('#tkt').textContent=t;
+ let qh=0;const q=$('#tkq');q.innerHTML='';
+ try{const m=t.match(/^Adresse:\s*(.+)$/m);
+  if(m&&typeof qrcode!=='undefined'){const a=m[1].trim(),qr=qrcode(0,'M');
+   qr.addData('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(a));qr.make();
+   q.innerHTML=qr.createSvgTag({cellSize:4,margin:2,scalable:true})+'<div class="l">Navigation: scannen</div>';qh=44}}catch(e){q.innerHTML='';qh=0}
+ const n=t.split('\n').reduce((a,l)=>a+Math.max(1,Math.ceil(l.length/22)),0),h=Math.ceil(n*7.4+18+qh);
+ let st=document.getElementById('pg');if(!st){st=document.createElement('style');st.id='pg';document.head.appendChild(st)}
+ st.textContent='@page{size:80mm '+h+'mm;margin:0}';
+ setTimeout(()=>window.print(),50)}
+function draw(){
+ const list=TAB==='n'?DOCS.filter(d=>d.status==='new'):TAB==='d'?DOCS.filter(d=>d.status==='done'):DOCS;
+ ['n','a','d'].forEach(k=>$('#t'+k).classList.toggle('on',k===TAB));
+ $('#list').innerHTML=list.length?list.map(o=>`<div class="o ${o.status}"><div class="m">${esc(o.no||'')} · ${o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):''} · ${esc(o.name||'')} ${esc(o.phone||'')}</div><pre>${esc(o.text)}</pre><button data-p="${o.id}" class="g">🖨 Drucken</button> ${o.status==='new'?`<button data-d="${o.id}">✔ Erledigt</button>`:`<button data-u="${o.id}" class="g">↩ Wiederherstellen</button> <button data-x="${o.id}" class="r">${armed===o.id?'Wirklich löschen?':'🗑 Löschen'}</button>`}</div>`).join(''):'<div class="o m">Keine Bestellungen</div>'}
+$('#tn').onclick=()=>{TAB='n';draw()};$('#ta').onclick=()=>{TAB='a';draw()};$('#td').onclick=()=>{TAB='d';draw()};
+$('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ try{
+  if(d.p){const o=DOCS.find(x=>x.id===d.p);for(let i=0;i<CFG.cp;i++){ticket(o);await new Promise(r=>setTimeout(r,800))}}
+  else if(d.d)await updateDoc(doc(db,'orders',d.d),{status:'done'});
+  else if(d.u)await updateDoc(doc(db,'orders',d.u),{status:'new'});
+  else if(d.x){if(armed===d.x){armed=null;await deleteDoc(doc(db,'orders',d.x))}else{armed=d.x;draw();setTimeout(()=>{armed=null;draw()},4000)}}
+ }catch(err){alert('Fehler: '+(err.code||err.message)+(d.x?'\n(Firestore-Regeln mit delete veröffentlichen)':''))}};
+onAuthStateChanged(auth,u=>{$('#login').hidden=!!u;$('#app').hidden=!u;if(unsub)unsub();clearInterval(ring);if(!u)return;first=true;
+ try{startAudio();if(ctx&&ctx.state==='running')$('#snd').textContent='🔔 Ton an'}catch(e){}
+ try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}
+ unsub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),snap=>{
+  DOCS=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(!first)snap.docChanges().forEach(c=>{if(c.type==='added'&&c.doc.data().status==='new'){beep();if(CFG.ap)for(let i=0;i<CFG.cp;i++)setTimeout(()=>ticket(c.doc.data()),i*900)}});
+  first=false;const n=DOCS.filter(d=>d.status==='new').length;$('#st').textContent=n?n+' neu':'';
+  arm();draw()})});
+document.addEventListener('click',()=>{try{startAudio();$('#snd').textContent='🔔 Ton an'}catch(e){}},{once:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}}});
+</script></body></html>
