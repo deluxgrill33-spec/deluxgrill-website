@@ -2,35 +2,52 @@
 <title>Delux Grill – Küche</title>
 <style>
 [hidden]{display:none!important}
+:root{--fs:15px}
 body{font:16px system-ui,sans-serif;margin:0;background:#111;color:#eee}
-header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;background:#222;position:sticky;top:0}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;background:#222;position:sticky;top:0;z-index:5}
+header.fl{animation:fl 1s steps(2,jump-none) infinite}
+@keyframes fl{0%{background:#222}50%{background:#b87a00}100%{background:#222}}
 header b{flex:1;font-size:18px}
 button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:#e8a317;color:#000;font-weight:700;cursor:pointer}
 button.g{background:#444;color:#eee}
 #login{max-width:320px;margin:60px auto;display:flex;flex-direction:column;gap:10px}
 input{font:inherit;padding:10px;border-radius:8px;border:1px solid #555;background:#222;color:#eee}
+input[type=checkbox]{width:20px;height:20px;padding:0}
 .o{margin:12px 16px;padding:12px;border-radius:10px;background:#1c1c1c;border-left:6px solid #888}
 .o.new{border-color:#e8a317;background:#2a2410}
-.o pre{white-space:pre-wrap;font:15px/1.4 system-ui;margin:8px 0}
+.o pre{white-space:pre-wrap;font:var(--fs)/1.4 system-ui;margin:8px 0}
 .o .m{color:#aaa;font-size:13px}
 #tk{display:none}#tkq svg{width:34mm;height:34mm;display:block;margin:2mm auto 0}#tkq .l{text-align:center;font:900 14px/1.2 Arial,sans-serif;-webkit-text-stroke:0}
 .tabs{display:flex;gap:8px;padding:10px 16px 0}
 .tabs button{background:#333;color:#eee}.tabs button.on{background:#e8a317;color:#000}
-.set{margin:10px 16px;padding:12px;border-radius:10px;background:#1c1c1c;display:grid;gap:10px}
+.set{margin:10px 16px;padding:12px;border-radius:10px;background:#1c1c1c;display:grid;gap:12px}
 .set label{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.set h4{margin:6px 0 0;color:#e8a317;font-size:14px;text-transform:uppercase;letter-spacing:.05em}
+.set small{color:#999}
+.set label:has(input[type=checkbox]){flex-wrap:nowrap}
 select{font:inherit;padding:8px;border-radius:8px;background:#222;color:#eee;border:1px solid #555}
 .o button.r{background:#7a1f1f;color:#fff}
 @media print{html,body{margin:0!important;padding:0!important;height:auto!important;background:#fff!important}body>*:not(#tk){display:none!important}#tk{display:block;color:#000;background:#fff;font:900 21px/1.25 Arial,Helvetica,sans-serif;-webkit-text-stroke:.5px #000;white-space:pre-wrap;word-break:break-word;width:auto;margin:0;padding:2mm 3mm;box-sizing:border-box}}
 </style></head><body>
 <div id="login"><b>Küche – Anmeldung</b><input id="em" type="email" placeholder="E-Mail"><input id="pw" type="password" placeholder="Passwort"><button id="go">Anmelden</button><div id="err" style="color:#f66"></div></div>
 <div id="app" hidden>
-<header><b>🍽 Bestellungen</b><span id="st"></span><button id="snd" class="g">🔔 Ton starten</button><button class="g" id="gs">⚙ Einstellungen</button><button class="g" id="out">Abmelden</button></header>
+<header id="hd"><b>🍽 Bestellungen</b><span id="st"></span><button id="snd" class="g">🔔 Ton starten</button><button class="g" id="gs">⚙ Einstellungen</button><button class="g" id="out">Abmelden</button></header>
 <div class="set" id="set" hidden>
-<label>🔔 Ton <select id="snds"><option value="glocke">Glocke</option><option value="alarm">Alarm (laut)</option><option value="klingel">Klingel</option><option value="sanft">Sanft</option></select> <button class="g" id="tst">▶ Test</button></label>
-<label>🔊 Lautstärke <input type="range" id="vol" min="10" max="100" value="80"></label>
-<label>🔁 Wiederholen alle <select id="rep"><option value="0">nie</option><option value="15">15 s</option><option value="30">30 s</option><option value="60">60 s</option></select> bis „Erledigt"</label>
-<label><input type="checkbox" id="ap" checked> 🖨 Automatisch drucken bei neuer Bestellung</label>
-<label>🖨 Anzahl Ausdrucke <select id="cp"><option value="1">1×</option><option value="2">2×</option></select></label>
+<h4>Ton</h4>
+<label>🔔 Ton bei neuer Bestellung <select id="snds"></select> <button class="g" id="tst">▶ Test</button></label>
+<label>🛵 Anderer Ton für Lieferung <select id="snd2"></select> <button class="g" id="tst2">▶ Test</button></label>
+<label>🔊 Lautstärke <input type="range" id="vol" min="10" max="100" value="80"> <span id="volv"></span></label>
+<label>🔁 Wiederholen alle <select id="rep"><option value="0">nie</option><option value="10">10 s</option><option value="15">15 s</option><option value="30">30 s</option><option value="60">60 s</option><option value="120">2 min</option></select> bis „Erledigt"</label>
+<h4>Drucken</h4>
+<label>🖨 Automatisch drucken <select id="ap"><option value="all">Alle Bestellungen</option><option value="delivery">Nur Lieferung</option><option value="pickup">Nur Abholung</option><option value="off">Nie</option></select></label>
+<label>🖨 Anzahl Ausdrucke <select id="cp"><option value="1">1×</option><option value="2">2×</option><option value="3">3×</option></select></label>
+<label><input type="checkbox" id="qr"> 📍 Navigations-QR bei Lieferung drucken</label>
+<label><button class="g" id="ttp">🖨 Testdruck</button> <small>druckt eine Probe-Bestellung mit QR</small></label>
+<h4>Anzeige &amp; Hintergrund</h4>
+<label>🔠 Schriftgröße der Bestellungen <select id="fs"><option value="15">Normal</option><option value="19">Groß</option><option value="24">Sehr groß</option></select></label>
+<label><input type="checkbox" id="fl"> 💡 Kopfzeile blinkt, solange neue Bestellungen offen sind</label>
+<label><input type="checkbox" id="wl"> 🖥 Bildschirm nicht ausschalten</label>
+<label><input type="checkbox" id="bg"> 🎧 Im Hintergrund aktiv halten <small>(hilft, wenn das Fenster verdeckt ist; experimentell)</small></label>
 </div>
 <div class="tabs"><button id="tn" class="on">Neu</button><button id="ta">Alle</button><button id="td">Archiv (erledigt)</button></div>
 <div id="list"></div></div>
@@ -1302,35 +1319,80 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,collection,query,orderBy,limit,onSnapshot,updateDoc,deleteDoc,doc} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-const $=s=>document.querySelector(s);let ctx=null,first=true,unsub=null,ring=null,TAB='n',DOCS=[],armed=null;
+const $=s=>document.querySelector(s);let ctx=null,first=true,unsub=null,ring=null,TAB='n',DOCS=[],armed=null,lock=null,kaOsc=null;
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const CFG=(()=>{try{return Object.assign({snd:'glocke',vol:80,rep:30,ap:true,cp:1},JSON.parse(localStorage.getItem('dg-k')||'{}'))}catch(e){return{snd:'glocke',vol:80,rep:30,ap:true,cp:1}}})();
+const DEF={snd:'glocke',snd2:'',vol:80,rep:30,ap:'all',cp:1,qr:true,fl:true,wl:true,bg:true,fs:15};
+const CFG=(()=>{let c={};try{c=JSON.parse(localStorage.getItem('dg-k')||'{}')}catch(e){}c=Object.assign({},DEF,c);if(c.ap===true)c.ap='all';if(c.ap===false)c.ap='off';return c})();
 const save=()=>{try{localStorage.setItem('dg-k',JSON.stringify(CFG))}catch(e){}};
-$('#snds').value=CFG.snd;$('#vol').value=CFG.vol;$('#rep').value=CFG.rep;$('#ap').checked=CFG.ap;$('#cp').value=CFG.cp;
-$('#snds').onchange=e=>{CFG.snd=e.target.value;save();beep()};
-$('#vol').onchange=e=>{CFG.vol=+e.target.value;save();beep()};
+/* ---------- Töne (alle selbst erzeugt, keine Dateien nötig) ---------- */
+const N={C4:262,G4:392,C5:523,D5:587,E5:659,F5:698,G5:784,A5:880,B5:988,C6:1047,E6:1319,G6:1568};
+const SND={
+ glocke:['Glocke',(t)=>{[0,.3,.6].forEach(x=>t(880,x,.2))}],
+ alarm:['Alarm (laut)',(t)=>{for(let i=0;i<6;i++)t(i%2?800:600,i*.22,.2,'square')}],
+ klingel:['Klingel',(t)=>{for(let i=0;i<3;i++){t(1046,i*.6,.25);t(784,i*.6+.27,.3)}}],
+ sanft:['Sanft',(t)=>{t(660,0,.3,'triangle');t(880,.3,.3,'triangle');t(1100,.6,.5,'triangle')}],
+ tuer:['Türklingel (Ding-Dong)',(t)=>{for(let i=0;i<2;i++){t(N.E5,i*1.3,.5);t(N.C5,i*1.3+.5,.8)}}],
+ fanfare:['Fanfare',(t)=>{[N.C5,N.E5,N.G5].forEach((f,i)=>t(f,i*.16,.15,'sawtooth',0,.5));t(N.C6,.48,.6,'sawtooth',0,.5)}],
+ telefon:['Telefon',(t)=>{for(let i=0;i<3;i++){t(440,i*.8,.4,'sine',0,.6);t(480,i*.8,.4,'sine',0,.6)}}],
+ sirene:['Sirene',(t)=>{for(let i=0;i<2;i++){t(600,i*1.2,.6,'sine',1000);t(1000,i*1.2+.6,.6,'sine',600)}}],
+ kasse:['Kasse (Ka-Ching)',(t)=>{t(N.G6,0,.15);t(2093,.12,.7);t(N.G6,.9,.15);t(2093,1.02,.7)}],
+ gong:['Gong',(t)=>{t(196,0,2,'sine',0,1.2);t(392,0,1.4,'sine',0,.5)}],
+ arpeggio:['Arpeggio',(t)=>{[N.C5,N.E5,N.G5,N.C6,N.E6].forEach((f,i)=>t(f,i*.12,.2))}],
+ tropfen:['Wassertropfen',(t)=>{[1500,1200,900,700,500].forEach((f,i)=>t(f,i*.17,.12))}],
+ marimba:['Marimba',(t)=>{[N.C5,N.E5,N.G5,N.E5,N.C5,N.G4].forEach((f,i)=>t(f,i*.15,.18,'triangle'))}],
+ retro:['Retro-Spiel',(t)=>{t(N.B5,0,.09,'square',0,.45);t(N.E6,.09,.45,'square',0,.45)}],
+ doppel:['Doppelton',(t)=>{for(let i=0;i<2;i++){t(N.G5,i*.8,.2);t(N.C6,i*.8+.25,.3)}}],
+ dreiklang:['Dreiklang',(t)=>{for(let i=0;i<2;i++)[N.C5,N.E5,N.G5].forEach(f=>t(f,i*1.1,.9,'sine',0,.5))}],
+ kirche:['Kirchenglocke',(t)=>{for(let i=0;i<2;i++){t(220,i*1.8,1.6,'sine',0,1);t(440,i*1.8,1.1,'sine',0,.45);t(660,i*1.8,.7,'sine',0,.3)}}],
+ pager:['Pager',(t)=>{for(let g=0;g<2;g++)for(let i=0;i<4;i++)t(1800,g*.9+i*.1,.06,'square',0,.4)}],
+ orgel:['Orgel',(t)=>{[N.E5,N.G5,N.A5,N.G5,N.E5].forEach((f,i)=>t(f,i*.2,.22,'sawtooth',0,.4))}],
+ kuckuck:['Kuckuck',(t)=>{for(let i=0;i<2;i++){t(N.G5,i*.9,.25);t(622,i*.9+.3,.35)}}],
+ feuer:['Feueralarm (sehr laut)',(t)=>{for(let i=0;i<20;i++)t(i%2?770:960,i*.15,.14,'square')}],
+ sonar:['Sonar',(t)=>{t(1000,0,.5,'sine',0,1);t(1000,1,.5,'sine',0,.4)}],
+ harfe:['Harfe',(t)=>{[N.C5,N.D5,N.E5,N.G5,N.A5,N.C6].forEach((f,i)=>t(f,i*.1,.4,'sine',0,.8))}],
+ bahnhof:['Bahnhof-Signal',(t)=>{t(N.C5,0,.3,'triangle');t(N.E5,.35,.3,'triangle');t(N.G5,.7,.6,'triangle')}]
+};
+const optsHtml=(withNone)=>(withNone?'<option value="">wie oben</option>':'')+Object.keys(SND).map((k,i)=>`<option value="${k}">${i+1} · ${SND[k][0]}</option>`).join('');
+$('#snds').innerHTML=optsHtml(false);$('#snd2').innerHTML=optsHtml(true);
+if(!SND[CFG.snd])CFG.snd='glocke';if(CFG.snd2&&!SND[CFG.snd2])CFG.snd2='';
+$('#snds').value=CFG.snd;$('#snd2').value=CFG.snd2;$('#vol').value=CFG.vol;$('#volv').textContent=CFG.vol+'%';$('#rep').value=CFG.rep;$('#ap').value=CFG.ap;$('#cp').value=CFG.cp;$('#qr').checked=CFG.qr;$('#fl').checked=CFG.fl;$('#wl').checked=CFG.wl;$('#bg').checked=CFG.bg;$('#fs').value=CFG.fs;
+document.documentElement.style.setProperty('--fs',CFG.fs+'px');
+$('#snds').onchange=e=>{CFG.snd=e.target.value;save();startAudio();beep(CFG.snd)};
+$('#snd2').onchange=e=>{CFG.snd2=e.target.value;save();startAudio();beep(CFG.snd2||CFG.snd)};
+$('#vol').oninput=e=>{$('#volv').textContent=e.target.value+'%'};
+$('#vol').onchange=e=>{CFG.vol=+e.target.value;save();startAudio();beep(CFG.snd)};
 $('#rep').onchange=e=>{CFG.rep=+e.target.value;save();arm()};
-$('#ap').onchange=e=>{CFG.ap=e.target.checked;save()};
+$('#ap').onchange=e=>{CFG.ap=e.target.value;save()};
 $('#cp').onchange=e=>{CFG.cp=+e.target.value;save()};
-$('#tst').onclick=()=>{startAudio();beep()};
+$('#qr').onchange=e=>{CFG.qr=e.target.checked;save()};
+$('#fs').onchange=e=>{CFG.fs=+e.target.value;save();document.documentElement.style.setProperty('--fs',CFG.fs+'px')};
+$('#fl').onchange=e=>{CFG.fl=e.target.checked;save();flash()};
+$('#wl').onchange=e=>{CFG.wl=e.target.checked;save();wakeLock()};
+$('#bg').onchange=e=>{CFG.bg=e.target.checked;save();keepAlive()};
+$('#tst').onclick=()=>{startAudio();beep(CFG.snd)};
+$('#tst2').onclick=()=>{startAudio();beep(CFG.snd2||CFG.snd)};
+$('#ttp').onclick=()=>ticket({no:'TEST',createdAt:null,text:'*BESTELLUNG TEST*\nLIEFERUNG\n━━━━━━━━━━\n*1x Döner* (7,50 €)\n━━━━━━━━━━\n*Name:* Testkunde\n*Adresse:* Hildesheimer Str. 520, 30880 Laatzen\n*Zahlung:* Bar'});
 $('#gs').onclick=()=>{$('#set').hidden=!$('#set').hidden};
 $('#go').onclick=()=>signInWithEmailAndPassword(auth,$('#em').value,$('#pw').value).catch(e=>$('#err').textContent=e.code);
 $('#out').onclick=()=>signOut(auth);
-function startAudio(){ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume()}
-$('#snd').onclick=()=>{startAudio();beep();$('#snd').textContent='🔔 Ton an'};
-function tone(f,t,d,ty){const o=ctx.createOscillator(),g=ctx.createGain(),v=CFG.vol/100;o.type=ty||'sine';o.frequency.value=f;o.connect(g);g.connect(ctx.destination);const a=ctx.currentTime+t;g.gain.setValueAtTime(0,a);g.gain.linearRampToValueAtTime(v,a+.02);g.gain.linearRampToValueAtTime(0,a+d);o.start(a);o.stop(a+d+.02)}
-function beep(){if(!ctx)return;const k=CFG.snd;
- if(k==='alarm'){for(let i=0;i<6;i++)tone(i%2?800:600,i*.22,.2,'square')}
- else if(k==='klingel'){for(let i=0;i<3;i++){tone(1046,i*.6,.25,'sine');tone(784,i*.6+.27,.3,'sine')}}
- else if(k==='sanft'){tone(660,0,.3,'triangle');tone(880,.3,.3,'triangle');tone(1100,.6,.5,'triangle')}
- else{[0,.3,.6].forEach(t=>tone(880,t,.2,'sine'))}}
-function arm(){clearInterval(ring);const n=DOCS.filter(d=>d.status==='new').length;if(n&&CFG.rep>0)ring=setInterval(beep,CFG.rep*1000)}
+function startAudio(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume();keepAlive()}catch(e){}}
+$('#snd').onclick=()=>{startAudio();beep(CFG.snd);$('#snd').textContent='🔔 Ton an'};
+function tone(f,t,d,ty,f2,g){const o=ctx.createOscillator(),gn=ctx.createGain(),v=Math.min(1,CFG.vol/100*(g||1));o.type=ty||'sine';const a=ctx.currentTime+t;o.frequency.setValueAtTime(f,a);if(f2)o.frequency.linearRampToValueAtTime(f2,a+d);o.connect(gn);gn.connect(ctx.destination);gn.gain.setValueAtTime(0,a);gn.gain.linearRampToValueAtTime(v,a+.02);gn.gain.linearRampToValueAtTime(0,a+d);o.start(a);o.stop(a+d+.02)}
+function beep(k){if(!ctx)return;const s=SND[k||CFG.snd]||SND.glocke;try{s[1](tone)}catch(e){}}
+const isDel=o=>/LIEFERUNG/i.test(String(o&&o.text||''));
+const kindFor=o=>(isDel(o)&&CFG.snd2)?CFG.snd2:CFG.snd;
+function pickRing(){const n=DOCS.filter(d=>d.status==='new');return n.some(isDel)&&CFG.snd2?CFG.snd2:CFG.snd}
+function arm(){clearInterval(ring);const n=DOCS.filter(d=>d.status==='new').length;if(n&&CFG.rep>0)ring=setInterval(()=>beep(pickRing()),CFG.rep*1000)}
+function flash(){$('#hd').classList.toggle('fl',!!CFG.fl&&DOCS.some(d=>d.status==='new'))}
+async function wakeLock(){try{if(!navigator.wakeLock)return;if(CFG.wl){if(!lock||lock.released){lock=await navigator.wakeLock.request('screen')}}else if(lock){await lock.release();lock=null}}catch(e){}}
+function keepAlive(){try{if(CFG.bg&&ctx&&!kaOsc){kaOsc=ctx.createOscillator();const g=ctx.createGain();g.gain.value=.0002;kaOsc.frequency.value=30;kaOsc.connect(g);g.connect(ctx.destination);kaOsc.start()}else if(!CFG.bg&&kaOsc){kaOsc.stop();kaOsc=null}}catch(e){}}
+function shouldPrint(o){return CFG.ap==='all'||(CFG.ap==='delivery'&&isDel(o))||(CFG.ap==='pickup'&&!isDel(o))}
 function ticket(o){
- const t='DELUX GRILL\n'+o.no+'  '+(o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):'')+'\n----------------------\n'+o.text.replace(/\*/g,'')+'\n----------------------\n';
+ const t='DELUX GRILL\n'+o.no+'  '+(o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):new Date().toLocaleString('de-DE'))+'\n----------------------\n'+o.text.replace(/\*/g,'')+'\n----------------------\n';
  $('#tkt').textContent=t;
  let qh=0;const q=$('#tkq');q.innerHTML='';
  try{const m=t.match(/^Adresse:\s*(.+)$/m);
-  if(m&&typeof mkQR!=='undefined'){const a=m[1].trim();
+  if(CFG.qr&&m&&typeof mkQR!=='undefined'){const a=m[1].trim();
    q.innerHTML=mkQR('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(a))+'<div class="l">Navigation: scannen</div>';qh=44}}catch(e){q.innerHTML='';qh=0}
  const n=t.split('\n').reduce((a,l)=>a+Math.max(1,Math.ceil(l.length/22)),0),h=Math.ceil(n*7.4+18+qh);
  let st=document.getElementById('pg');if(!st){st=document.createElement('style');st.id='pg';document.head.appendChild(st)}
@@ -1339,7 +1401,7 @@ function ticket(o){
 function draw(){
  const list=TAB==='n'?DOCS.filter(d=>d.status==='new'):TAB==='d'?DOCS.filter(d=>d.status==='done'):DOCS;
  ['n','a','d'].forEach(k=>$('#t'+k).classList.toggle('on',k===TAB));
- $('#list').innerHTML=list.length?list.map(o=>`<div class="o ${o.status}"><div class="m">${esc(o.no||'')} · ${o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):''} · ${esc(o.name||'')} ${esc(o.phone||'')}</div><pre>${esc(o.text)}</pre><button data-p="${o.id}" class="g">🖨 Drucken</button> ${o.status==='new'?`<button data-d="${o.id}">✔ Erledigt</button>`:`<button data-u="${o.id}" class="g">↩ Wiederherstellen</button> <button data-x="${o.id}" class="r">${armed===o.id?'Wirklich löschen?':'🗑 Löschen'}</button>`}</div>`).join(''):'<div class="o m">Keine Bestellungen</div>'}
+ $('#list').innerHTML=list.length?list.map(o=>`<div class="o ${o.status}"><div class="m">${esc(o.no||'')} · ${o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):''} · ${esc(o.name||'')} ${esc(o.phone||'')}</div><pre>${esc(String(o.text).replace(/\*/g,''))}</pre><button data-p="${o.id}" class="g">🖨 Drucken</button> ${o.status==='new'?`<button data-d="${o.id}">✔ Erledigt</button>`:`<button data-u="${o.id}" class="g">↩ Wiederherstellen</button> <button data-x="${o.id}" class="r">${armed===o.id?'Wirklich löschen?':'🗑 Löschen'}</button>`}</div>`).join(''):'<div class="o m">Keine Bestellungen</div>';flash()}
 $('#tn').onclick=()=>{TAB='n';draw()};$('#ta').onclick=()=>{TAB='a';draw()};$('#td').onclick=()=>{TAB='d';draw()};
 $('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
  try{
@@ -1350,12 +1412,12 @@ $('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;con
  }catch(err){alert('Fehler: '+(err.code||err.message)+(d.x?'\n(Firestore-Regeln mit delete veröffentlichen)':''))}};
 onAuthStateChanged(auth,u=>{$('#login').hidden=!!u;$('#app').hidden=!u;if(unsub)unsub();clearInterval(ring);if(!u)return;first=true;
  try{startAudio();if(ctx&&ctx.state==='running')$('#snd').textContent='🔔 Ton an'}catch(e){}
- try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}
+ wakeLock();
  unsub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),snap=>{
   DOCS=snap.docs.map(d=>({id:d.id,...d.data()}));
-  if(!first)snap.docChanges().forEach(c=>{if(c.type==='added'&&c.doc.data().status==='new'){beep();if(CFG.ap)for(let i=0;i<CFG.cp;i++)setTimeout(()=>ticket(c.doc.data()),i*900)}});
+  if(!first)snap.docChanges().forEach(c=>{if(c.type==='added'&&c.doc.data().status==='new'){const o=c.doc.data();beep(kindFor(o));if(shouldPrint(o))for(let i=0;i<CFG.cp;i++)setTimeout(()=>ticket(o),i*900)}});
   first=false;const n=DOCS.filter(d=>d.status==='new').length;$('#st').textContent=n?n+' neu':'';
   arm();draw()})});
 document.addEventListener('click',()=>{try{startAudio();$('#snd').textContent='🔔 Ton an'}catch(e){}},{once:true});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wakeLock()});
 </script></body></html>
