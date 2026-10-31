@@ -513,12 +513,15 @@ function renderCust(){if(window.ZOOMUI)applyZ();
   $('#app').innerHTML=h;nvRefresh();if(BOOKMODE)bookAfter();if(FLOW)flowAfter();
 }
 var INL='';
+/* keep a card where it is on screen after a re-render, so the page never jumps */
+function pinPos(q,t0){if(t0===null||t0===undefined)return;var b=document.querySelector(q);if(!b)return;var d=b.getBoundingClientRect().top-t0;if(d)window.scrollTo({top:window.scrollY+d,behavior:'instant'})}
 function openItem(id){
   var it=findItem(id);if(!it)return;
-  if(APP){if(INL===id){INL='';SEL=null;renderCust();return}
+  if(APP){var pq='.card.it[data-i="'+id+'"]',pa=document.querySelector(pq),pt=pa?pa.getBoundingClientRect().top:null,same=!!APPCAT;
+    if(INL===id){INL='';SEL=null;renderCust();pinPos(pq,pt);return}
     SEL={id:id,qty:1,sel:{},note:'',xw:''};(it.groups||[]).forEach(function(gid){var g=groupById(gid);if(!g)return;if(g.type==='single'&&g.required)SEL.sel[gid]=[0];var ki=g.options.findIndex(function(o){return o.k});if(ki>=0)SEL.sel[gid]=[ki]});
     INL=id;var tc=APPCAT;if(!tc){var c0=S.categories.find(function(c){return c.items.some(function(x){return x.id===id})});tc=it.menu?((it.days&&it.days.length)?'_off':'_menu'):(c0?c0.id:'');APPSCR=window.scrollY;APPCAT=tc;ovClose();INL=id;SEL={id:id,qty:1,sel:{},note:'',xw:''};(it.groups||[]).forEach(function(gid){var g=groupById(gid);if(!g)return;if(g.type==='single'&&g.required)SEL.sel[gid]=[0];var ki=g.options.findIndex(function(o){return o.k});if(ki>=0)SEL.sel[gid]=[ki]})}
-    renderCust();var r=document.querySelector('.card.it.op');if(r){var y=r.getBoundingClientRect().top+window.scrollY-70;window.scrollTo({top:Math.max(0,y),behavior:'smooth'})}return}
+    renderCust();if(same)pinPos(pq,pt);var r=document.querySelector('.card.it.op');if(r){var hb=document.querySelector('.ap-bar'),off=(hb?hb.offsetHeight:60)+8,y=r.getBoundingClientRect().top+window.scrollY-off;window.scrollTo({top:Math.max(0,y),behavior:same?'smooth':'auto'})}return}
   SEL={id:id,qty:1,sel:{},note:'',xw:''};
   (it.groups||[]).forEach(function(gid){var g=groupById(gid);if(!g)return;if(g.type==='single'&&g.required)SEL.sel[gid]=[0];var ki=g.options.findIndex(function(o){return o.k});if(ki>=0)SEL.sel[gid]=[ki]});
   if(OVK==='menus')OVBACK.push(drawMenus);else if(OVK==='cats')OVBACK.push(drawCats);
@@ -696,7 +699,7 @@ function custClick(e){
   if(el.id==='qm'){if(SEL.qty>1)SEL.qty--;$('#qv').textContent=SEL.qty;$('#pv').textContent=eur(selUnit()*SEL.qty);return true}
   if(el.id==='qp'){SEL.qty++;$('#qv').textContent=SEL.qty;$('#pv').textContent=eur(selUnit()*SEL.qty);return true}
   if(el.id==='ad'){var it=findItem(SEL.id);if(reqMissing(it,SEL.sel)){toast(t('pick'));return true}(it.groups||[]).forEach(function(gid){var g=groupById(gid);if(g&&g.needIf&&!grpReq(g,SEL.sel))delete SEL.sel[gid]});
-    var wn='';(it.groups||[]).forEach(function(gid){var g=groupById(gid);if(!g)return;var wi=g.options.findIndex(function(o){return o.w});if(wi>=0&&(SEL.sel[gid]||[]).indexOf(wi)>=0&&SEL.xw.trim())wn='✍️ '+SEL.xw.trim()});var nn=[wn,SEL.note.trim()].filter(Boolean).join(' · ');CART.push({id:SEL.id,qty:SEL.qty,sel:JSON.parse(JSON.stringify(SEL.sel)),note:nn});saveCart();ovClose();renderCust();return true}
+    var wn='';(it.groups||[]).forEach(function(gid){var g=groupById(gid);if(!g)return;var wi=g.options.findIndex(function(o){return o.w});if(wi>=0&&(SEL.sel[gid]||[]).indexOf(wi)>=0&&SEL.xw.trim())wn='✍️ '+SEL.xw.trim()});var nn=[wn,SEL.note.trim()].filter(Boolean).join(' · ');CART.push({id:SEL.id,qty:SEL.qty,sel:JSON.parse(JSON.stringify(SEL.sel)),note:nn});saveCart();var aq=(APP&&INL)?'.card.it[data-i="'+INL+'"]':'',aa=aq?document.querySelector(aq):null,at=aa?aa.getBoundingClientRect().top:null;ovClose();renderCust();if(aq)pinPos(aq,at);return true}
   if(el.dataset.q!==undefined){var l=CART[+el.dataset.q];l.qty+=+el.dataset.d;if(l.qty<1)CART.splice(+el.dataset.q,1);saveCart();if(!CART.length){ovClose();}else drawCart();renderCust();return true}
   if(el.dataset.km){CF.km=+el.dataset.km;drawCart();return true}
   if(el.dataset.m){CF.mode=el.dataset.m;drawCart();return true}
