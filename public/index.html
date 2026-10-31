@@ -578,14 +578,14 @@ function buildMsg(){
   var items=CART.filter(function(l){return findItem(l.id)});
   if(freeActive())items=items.concat([{id:freeId(),qty:1,sel:{},note:'',free:true}]);
   tmp.forEach(function(x){if(x)L.push(x)});
-  L.push('*BESTELLUNG '+ordNo()+'*');L.push(dd+' | '+tt+' Uhr');L.push(CF.mode==='delivery'?'LIEFERUNG':'ABHOLUNG');L.push(LN_);
-  items.forEach(function(l){var it=findItem(l.id);L.push('*'+(l.free?'GRATIS: ':'')+it.name+'* ('+l.qty+') ('+pr(l.free?0:lineUnit(l)*l.qty)+')');var o=grpOpts(l).map(function(X){return X.o.map(function(o){return o.name+(+o.price?' (+'+pr(o.price)+')':'')}).join(', ')}).filter(Boolean);if(o.length)L.push('   + '+o.join(' · '));if(l.note)L.push('   Hinweis: '+l.note)});
+  L.push('*BESTELLUNG '+ordNo()+'* · '+(CF.mode==='delivery'?'LIEFERUNG':'ABHOLUNG'));L.push(dd+' | '+tt+' Uhr');L.push(LN_);
+  items.forEach(function(l){var it=findItem(l.id);L.push('*'+(l.free?'GRATIS: ':'')+l.qty+'× '+it.name+'* – '+pr(l.free?0:lineUnit(l)*l.qty));var o=grpOpts(l).map(function(X){return X.o.map(function(o){return o.name+(+o.price?' (+'+pr(o.price)+')':'')}).join(', ')}).filter(Boolean);if(o.length)L.push('   '+o.join(' · '));if(l.note)L.push('   Hinweis: '+l.note)});
   var ageN=0;CART.forEach(function(l){var c=S.categories.find(function(c){return c.items.some(function(i){return i.id===l.id})});if(c&&c.age>ageN&&!/alkoholfrei/i.test(findItem(l.id).name))ageN=c.age});if(ageN)L.push('ACHTUNG: Ausweis ab '+ageN+' Jahren');
-  var sub=cartSub(),fee=delFee();L.push(LN_);if(fee){L.push('Zwischensumme ('+pr(sub)+')');L.push('Lieferung ('+pr(fee)+')')}L.push('*GESAMT ('+pr(sub+fee)+')*');L.push(LN_);
-  L.push('*Name:* '+CF.name);if(CF.phone)L.push('*Tel:* '+CF.phone);
-  if(CF.mode==='delivery'){L.push('*Adresse:* '+CF.addr);if(CF.km)L.push('*Entfernung:* '+(CF.geo?(+CF.geoDist).toFixed(1)+' km (Zone '+CF.km+')':CF.km+' km'));if(CF.name)L.push('*Klingel:* '+CF.name)}
-  L.push('*Zahlung:* '+(CF.pay==='card'?'Karte (EC)':'Bar'));if(CF.note)L.push('*Notiz:* '+CF.note);L.push('Sprache: '+LN[LANG]);
-  var ln=[];loyMsg(ln);if(ln.length){L.push(LN_);ln.forEach(function(x){L.push(x.replace(/\*/g,''))})}
+  var sub=cartSub(),fee=delFee();L.push(LN_);if(fee)L.push('Zwischensumme '+pr(sub)+' · Lieferung '+pr(fee));L.push('*GESAMT '+pr(sub+fee)+'* · '+(CF.pay==='card'?'Karte (EC)':'Bar'));L.push(LN_);
+  L.push('*'+CF.name+'*'+(CF.phone?' · '+CF.phone:''));
+  if(CF.mode==='delivery')L.push('📍 '+CF.addr+(CF.km?' ('+(CF.geo?(+CF.geoDist).toFixed(1):CF.km)+' km)':''));
+  if(CF.note)L.push('📝 '+CF.note);if(LANG!=='de')L.push('Sprache: '+LN[LANG]);
+  var ln=[];loyMsg(ln);if(ln.length){L.push(LN_);L.push(ln.map(function(x){return x.replace(/\*/g,'')}).join(' · '))}
   return L.join('\n')}
 function receiptHtml(){return '<!doctype html><meta charset=utf8><title>'+ordNo()+'</title><body style="font:15px/1.5 monospace;white-space:pre-wrap;max-width:420px;margin:20px auto">'+esc(buildMsg().replace(/\*/g,'').replace(/```/g,''))+'<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script>'}
 function t_de(k){return T.de[k]}
