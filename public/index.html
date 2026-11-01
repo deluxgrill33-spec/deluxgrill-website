@@ -489,7 +489,7 @@ function appHtml(){var sh=S.shop,open=isOpen(),rtl=curRtl(),lg='<button class="p
   var hasOff=dayOffers().length,hasMenu=menuItems().some(function(i){return !(i.days&&i.days.length)});
   var bn=(hasOff?'<button class="ap-bn" data-ac2="_off"><span>💯</span><b>'+esc(t('offers'))+'</b><i>'+(rtl?'‹':'›')+'</i></button>':'')+(hasMenu?'<button class="ap-bn m" data-ac2="_menu"><span>🍟</span><b>'+esc(t('menus'))+'</b><i>'+(rtl?'‹':'›')+'</i></button>':'');
   var mh=hasMenu?'<div class="ap-mh" dir="'+(rtl?'rtl':'ltr')+'">🍟 '+esc(t('menus'))+'</div>'+carHtml({sp:'menu'}):'';
-  return{top:top,home:hrsStrip()+'<div class="ofsm">'+offsHtml(0)+'</div>'+mh+tiles+'<div class="ap-bns">'+bn+'</div>'}}
+  return{top:top,home:hrsStrip()+'<div class="ofsm">'+offsHtml(0)+'</div>'+tiles+'<div class="ap-bns">'+bn+'</div>'}}
 function fmtT(s){return String(s||'').replace(/^0/,'').replace(':00','')}
 function hrsStrip(){var sh=S.shop;if(!sh.hours.some(function(x){return x.on}))return '';var td=todayIdx(),dn=t('days');return '<div class="hrs" aria-label="'+esc(t('hours'))+'">'+sh.hours.map(function(x,d){return '<div class="hd1'+(d===td?' now':'')+(x.on?'':' off')+'"><b>'+esc(dn[d])+'</b>'+(x.on?'<span dir="ltr">'+esc(fmtT(x.from)+'–'+fmtT(x.to))+'</span>':'—')+'</div>'}).join('')+'</div>'+(sh.hoursNote?'<div class="mut" dir="auto" style="font-size:12px;margin-bottom:2px">'+esc((sh.hoursNoteTr&&sh.hoursNoteTr[LANG])||sh.hoursNote)+'</div>':'')}
 var ZS=[1,1.1,1.2,1.3,1.4,1.5],ZL=(function(){try{var v=localStorage.getItem('dg-z');if(v!==null&&+v>=0&&+v<ZS.length)return +v}catch(e){}return 2})();
