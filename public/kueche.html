@@ -7,7 +7,7 @@
 body{font:16px system-ui,sans-serif;margin:0;background:#111;color:#eee}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;background:#222;position:sticky;top:0;z-index:5}
 header.fl{animation:fl 1s steps(2,jump-none) infinite}
-@keyframes fl{0%{background:#222}50%{background:#b87a00}100%{background:#222}}
+@keyframes fl{0%{background:var(--hd)}50%{background:#e8a317;color:#000}100%{background:var(--hd)}}
 header b{flex:1;font-size:18px}
 button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:#e8a317;color:#000;font-weight:700;cursor:pointer}
 button.g{background:#444;color:#eee}
@@ -28,6 +28,32 @@ input[type=checkbox]{width:20px;height:20px;padding:0}
 .set label:has(input[type=checkbox]){flex-wrap:nowrap}
 select{font:inherit;padding:8px;border-radius:8px;background:#222;color:#eee;border:1px solid #555}
 .o button.r{background:#7a1f1f;color:#fff}
+
+:root{--bg:#111;--hd:#222;--cd:#1c1c1c;--cn:#2a2410;--tx:#eee;--mu:#aaa;--ac:#e8a317;--bd:#555;--g:#444;--gt:#eee}
+body.th-oled{--bg:#000;--hd:#0a0a0a;--cd:#0b0b0b;--cn:#1c1604}
+body.th-light{--bg:#eef0f2;--hd:#fff;--cd:#fff;--cn:#fff2cc;--tx:#111;--mu:#666;--bd:#bbb;--g:#d9dce0;--gt:#111}
+body.th-kontrast{--bg:#000;--hd:#000;--cd:#000;--cn:#000;--tx:#fff;--mu:#ddd;--bd:#fff;--g:#333;--gt:#fff}
+body.th-kontrast .o{outline:2px solid #fff}
+body{background:var(--bg)!important;color:var(--tx)!important}
+header{background:var(--hd)}
+.o{background:var(--cd);color:var(--tx);border-left-color:var(--bd)}.o.new{background:var(--cn);border-color:var(--ac)}
+.o.late{border-color:#e03131;box-shadow:0 0 0 2px #e03131 inset}
+.o .m,.set small{color:var(--mu)}
+button{background:var(--ac)}button.g{background:var(--g);color:var(--gt)}
+.tabs button{background:var(--g);color:var(--gt)}.tabs button.on{background:var(--ac);color:#000}
+.set{background:var(--cd)}.set h4{color:var(--ac)}
+input,select{background:var(--hd);color:var(--tx);border-color:var(--bd)}
+#list.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+#list.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}
+@media(max-width:700px){#list.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){#list.g2,#list.g3{grid-template-columns:1fr}}
+body.dn-kompakt .o{margin:6px 16px;padding:7px}body.dn-kompakt .o pre{margin:4px 0}
+body.dn-luftig .o{margin:18px 16px;padding:18px}
+body.bold .o pre{font-weight:700}
+body.nometa .o .m{display:none}
+body.bigbtn .o button{padding:14px 20px;font-size:18px}
+#hb{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 0}#hb input{flex:1;min-width:140px}
+.dh{margin:14px 16px 0;color:var(--ac);font-weight:700;display:flex;justify-content:space-between;grid-column:1/-1}
 @media print{html,body{margin:0!important;padding:0!important;height:auto!important;background:#fff!important}body>*:not(#tk){display:none!important}#tk{display:block;color:#000;background:#fff;font:900 21px/1.25 Arial,Helvetica,sans-serif;-webkit-text-stroke:.5px #000;white-space:pre-wrap;word-break:break-word;width:auto;margin:0;padding:2mm 3mm;box-sizing:border-box}}
 </style></head><body>
 <div id="login"><b>Küche – Anmeldung</b><input id="em" type="email" placeholder="E-Mail"><input id="pw" type="password" placeholder="Passwort"><button id="go">Anmelden</button><div id="err" style="color:#f66"></div></div>
@@ -45,12 +71,30 @@ select{font:inherit;padding:8px;border-radius:8px;background:#222;color:#eee;bor
 <label><input type="checkbox" id="qr"> 📍 Navigations-QR bei Lieferung drucken</label>
 <label><button class="g" id="ttp">🖨 Testdruck</button> <small>druckt eine Probe-Bestellung mit QR</small></label>
 <h4>Anzeige &amp; Hintergrund</h4>
-<label>🔠 Schriftgröße der Bestellungen <select id="fs"><option value="15">Normal</option><option value="19">Groß</option><option value="24">Sehr groß</option></select></label>
+<label>🔠 Schriftgröße der Bestellungen <select id="fs"><option value="13">Klein</option><option value="15">Normal</option><option value="19">Groß</option><option value="24">Sehr groß</option><option value="30">Riesig</option></select></label>
+<label>🎨 Farbschema <select id="th"><option value="dark">Dunkel</option><option value="oled">Schwarz (OLED)</option><option value="light">Hell</option><option value="kontrast">Hoher Kontrast</option></select></label>
+<label>🖌 Akzentfarbe <select id="ac"><option value="#e8a317">Gelb</option><option value="#ff6b35">Orange</option><option value="#2ecc71">Grün</option><option value="#4dabf7">Blau</option><option value="#ff5d8f">Pink</option><option value="#d92027">Rot</option><option value="#ffffff">Weiß</option></select></label>
+<label>🧱 Anordnung <select id="lay"><option value="list">Liste (eine Spalte)</option><option value="g2">2 Spalten</option><option value="g3">3 Spalten</option></select></label>
+<label>📏 Abstände <select id="dn"><option value="kompakt">Kompakt</option><option value="normal">Normal</option><option value="luftig">Luftig</option></select></label>
+<label>🕒 Zeitanzeige <select id="ds"><option value="voll">Datum + Uhrzeit komplett</option><option value="kurz">Kurz (Tag.Monat Uhrzeit)</option></select></label>
+<label><input type="checkbox" id="bd"> 🅱 Bestelltext fett</label>
+<label><input type="checkbox" id="mt"> 🏷 Kopfzeile jeder Bestellung zeigen (Nr., Zeit, Name, Telefon)</label>
+<label><input type="checkbox" id="ag2"> ⏱ Wartezeit anzeigen</label>
+<label>🚨 Neue Bestellung rot markieren nach <select id="ag"><option value="0">nie</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option></select></label>
+<label><input type="checkbox" id="bb"> 👆 Große Knöpfe (leichter zu treffen)</label>
+<h4>Verlauf &amp; Archiv</h4>
+<label>📚 Wie viele Bestellungen laden <select id="lim"><option value="50">50</option><option value="100">100</option><option value="200">200</option><option value="500">500</option></select> <small>(Seite lädt neu)</small></label>
+<label>🔃 Reihenfolge im Verlauf <select id="so"><option value="desc">Neueste zuerst</option><option value="asc">Älteste zuerst</option></select></label>
+<label>📅 Zeitraum im Verlauf <select id="rg"><option value="all">Alles</option><option value="today">Heute</option><option value="yday">Gestern</option><option value="7">Letzte 7 Tage</option><option value="30">Letzte 30 Tage</option></select></label>
+<label>🚚 Art im Verlauf <select id="ty"><option value="all">Alle</option><option value="del">Nur Lieferung</option><option value="pick">Nur Abholung</option></select></label>
+<label><input type="checkbox" id="grp"> 🗓 Nach Tagen gruppieren (mit Anzahl)</label>
+<label><button class="g" id="csv">⬇ Verlauf als Tabelle (CSV) speichern</button></label>
 <label><input type="checkbox" id="fl"> 💡 Kopfzeile blinkt, solange neue Bestellungen offen sind</label>
 <label><input type="checkbox" id="wl"> 🖥 Bildschirm nicht ausschalten</label>
 <label><input type="checkbox" id="bg"> 🎧 Im Hintergrund aktiv halten <small>(hilft, wenn das Fenster verdeckt ist; experimentell)</small></label>
 </div>
 <div class="tabs"><button id="tn" class="on">Neu</button><button id="ta">Alle</button><button id="td">Archiv (erledigt)</button></div>
+<div id="hb" hidden><input id="q" type="search" placeholder="🔍 Suchen (Name, Telefon, Artikel, Nr.)"><select id="rg2"><option value="all">Alles</option><option value="today">Heute</option><option value="yday">Gestern</option><option value="7">7 Tage</option><option value="30">30 Tage</option></select><select id="ty2"><option value="all">Alle Arten</option><option value="del">Lieferung</option><option value="pick">Abholung</option></select><select id="so2"><option value="desc">Neueste zuerst</option><option value="asc">Älteste zuerst</option></select></div>
 <div id="list"></div></div>
 <script>(function(){var M={},C={};function R(n){n=n.replace(/^\.\//,"");if(!C[n]){var m={exports:{}};C[n]=m;M[n](m,m.exports,R)}return C[n].exports}
 M["QR8bitByte"]=function(module,exports,require){
@@ -1322,7 +1366,7 @@ import {getFirestore,collection,query,orderBy,limit,onSnapshot,updateDoc,deleteD
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const $=s=>document.querySelector(s);let ctx=null,first=true,unsub=null,ring=null,TAB='n',DOCS=[],armed=null,lock=null,kaOsc=null;
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const DEF={snd:'glocke',snd2:'',vol:80,rep:30,ap:'all',cp:1,qr:true,fl:true,wl:true,bg:true,fs:15};
+const DEF={snd:'glocke',snd2:'',vol:80,rep:30,ap:'all',cp:1,qr:true,fl:true,wl:true,bg:true,fs:15,th:'dark',ac:'#e8a317',lay:'list',dn:'normal',ds:'voll',bd:false,mt:true,ag2:true,ag:0,bb:false,lim:100,so:'desc',rg:'all',ty:'all',grp:false};
 const CFG=(()=>{let c={};try{c=JSON.parse(localStorage.getItem('dg-k')||'{}')}catch(e){}c=Object.assign({},DEF,c);if(c.ap===true)c.ap='all';if(c.ap===false)c.ap='off';return c})();
 const save=()=>{try{localStorage.setItem('dg-k',JSON.stringify(CFG))}catch(e){}};
 /* ---------- Töne (alle selbst erzeugt, keine Dateien nötig) ---------- */
@@ -1357,6 +1401,9 @@ const optsHtml=(withNone)=>(withNone?'<option value="">wie oben</option>':'')+Ob
 $('#snds').innerHTML=optsHtml(false);$('#snd2').innerHTML=optsHtml(true);
 if(!SND[CFG.snd])CFG.snd='glocke';if(CFG.snd2&&!SND[CFG.snd2])CFG.snd2='';
 $('#snds').value=CFG.snd;$('#snd2').value=CFG.snd2;$('#vol').value=CFG.vol;$('#volv').textContent=CFG.vol+'%';$('#rep').value=CFG.rep;$('#ap').value=CFG.ap;$('#cp').value=CFG.cp;$('#qr').checked=CFG.qr;$('#fl').checked=CFG.fl;$('#wl').checked=CFG.wl;$('#bg').checked=CFG.bg;$('#fs').value=CFG.fs;
+const bind=(id,k,num,cb)=>{const e=$('#'+id);if(e.type==='checkbox'){e.checked=!!CFG[k];e.onchange=()=>{CFG[k]=e.checked;save();applyUI();draw();cb&&cb()}}else{e.value=CFG[k];e.onchange=()=>{CFG[k]=num?+e.value:e.value;save();applyUI();draw();cb&&cb()}}};
+function applyUI(){const b=document.body;b.className=['th-'+CFG.th,'dn-'+CFG.dn,CFG.bd?'bold':'',CFG.mt?'':'nometa',CFG.bb?'bigbtn':''].join(' ');document.documentElement.style.setProperty('--ac',CFG.ac);document.documentElement.style.setProperty('--fs',CFG.fs+'px');const l=$('#list');l.className=CFG.lay==='list'?'':CFG.lay;try{document.querySelector('meta[name=theme-color]').content=getComputedStyle(b).getPropertyValue('--hd')||'#222'}catch(e){}}
+
 document.documentElement.style.setProperty('--fs',CFG.fs+'px');
 $('#snds').onchange=e=>{CFG.snd=e.target.value;save();startAudio();beep(CFG.snd)};
 $('#snd2').onchange=e=>{CFG.snd2=e.target.value;save();startAudio();beep(CFG.snd2||CFG.snd)};
@@ -1373,6 +1420,21 @@ $('#bg').onchange=e=>{CFG.bg=e.target.checked;save();keepAlive()};
 $('#tst').onclick=()=>{startAudio();beep(CFG.snd)};
 $('#tst2').onclick=()=>{startAudio();beep(CFG.snd2||CFG.snd)};
 $('#ttp').onclick=()=>ticket({no:'TEST',createdAt:null,text:'*BESTELLUNG TEST*\nLIEFERUNG\n━━━━━━━━━━\n*1x Döner* (7,50 €)\n━━━━━━━━━━\n*Name:* Testkunde\n*Adresse:* Hildesheimer Str. 520, 30880 Laatzen\n*Zahlung:* Bar'});
+[['th','th'],['ac','ac'],['lay','lay'],['dn','dn'],['ds','ds'],['bd','bd'],['mt','mt'],['ag2','ag2'],['bb','bb'],['so','so'],['rg','rg'],['ty','ty'],['grp','grp']].forEach(a=>bind(a[0],a[1],false,()=>{['so','rg','ty'].forEach(k=>{const e=$('#'+k+'2');if(e)e.value=CFG[k]})}));bind('ag','ag',true);bind('lim','lim',true,()=>location.reload());
+[['rg2','rg'],['ty2','ty'],['so2','so']].forEach(a=>{const e=$('#'+a[0]);e.value=CFG[a[1]];e.onchange=()=>{CFG[a[1]]=e.value;save();$('#'+a[1]).value=e.value;draw()}});
+$('#q').oninput=()=>draw();
+const fmt=ts=>{const d=ts.toDate();return CFG.ds==='kurz'?d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):d.toLocaleString('de-DE')};
+const age=o=>o.createdAt?Math.floor((Date.now()-o.createdAt.toDate().getTime())/60000):0;
+const dayKey=o=>o.createdAt?o.createdAt.toDate().toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'}):'–';
+function filt(l){const q=($('#q').value||'').toLowerCase().trim(),now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+ l=l.filter(o=>{const ms=o.createdAt?o.createdAt.toDate().getTime():0;
+  if(CFG.rg==='today'&&ms<t0)return false;if(CFG.rg==='yday'&&(ms<t0-864e5||ms>=t0))return false;if(CFG.rg==='7'&&ms<t0-6*864e5)return false;if(CFG.rg==='30'&&ms<t0-29*864e5)return false;
+  if(CFG.ty==='del'&&!isDel(o))return false;if(CFG.ty==='pick'&&isDel(o))return false;
+  if(q&&!(String(o.text||'')+' '+(o.name||'')+' '+(o.phone||'')+' '+(o.no||'')).toLowerCase().includes(q))return false;return true});
+ if(CFG.so==='asc')l=l.slice().reverse();return l}
+$('#csv').onclick=()=>{const rows=[['Nr','Datum','Art','Name','Telefon','Status','Text']].concat(filt(DOCS).map(o=>[o.no||'',o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):'',isDel(o)?'Lieferung':'Abholung',o.name||'',o.phone||'',o.status||'',String(o.text||'').replace(/\*/g,'').replace(/\n/g,' | ')]));
+ const c='\ufeff'+rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='delux-bestellungen.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)};
+setInterval(()=>{if(DOCS.length&&!armed)draw()},30000);
 $('#gs').onclick=()=>{$('#set').hidden=!$('#set').hidden};
 $('#go').onclick=()=>signInWithEmailAndPassword(auth,$('#em').value,$('#pw').value).catch(e=>$('#err').textContent=e.code);
 $('#out').onclick=()=>signOut(auth);
@@ -1400,9 +1462,15 @@ function ticket(o){
  st.textContent='@page{size:80mm '+h+'mm;margin:0}';
  setTimeout(()=>window.print(),50)}
 function draw(){
- const list=TAB==='n'?DOCS.filter(d=>d.status==='new'):TAB==='d'?DOCS.filter(d=>d.status==='done'):DOCS;
+ let list=TAB==='n'?DOCS.filter(d=>d.status==='new'):TAB==='d'?DOCS.filter(d=>d.status==='done'):DOCS;
  ['n','a','d'].forEach(k=>$('#t'+k).classList.toggle('on',k===TAB));
- $('#list').innerHTML=list.length?list.map(o=>`<div class="o ${o.status}"><div class="m">${esc(o.no||'')} · ${o.createdAt?o.createdAt.toDate().toLocaleString('de-DE'):''} · ${esc(o.name||'')} ${esc(o.phone||'')}</div><pre>${esc(String(o.text).replace(/\*/g,''))}</pre><button data-p="${o.id}" class="g">🖨 Drucken</button> ${o.status==='new'?`<button data-d="${o.id}">✔ Erledigt</button>`:`<button data-u="${o.id}" class="g">↩ Wiederherstellen</button> <button data-x="${o.id}" class="r">${armed===o.id?'Wirklich löschen?':'🗑 Löschen'}</button>`}</div>`).join(''):'<div class="o m">Keine Bestellungen</div>';flash()}
+ $('#hb').hidden=TAB==='n';if(TAB!=='n')list=filt(list);
+ let last='',out='';
+ list.forEach(o=>{
+  if(TAB!=='n'&&CFG.grp){const k=dayKey(o);if(k!==last){last=k;out+=`<div class="dh"><span>${esc(k)}</span><span>${list.filter(x=>dayKey(x)===k).length}×</span></div>`}}
+  const a=age(o),late=o.status==='new'&&CFG.ag>0&&a>=CFG.ag;
+  out+=`<div class="o ${o.status}${late?' late':''}"><div class="m">${esc(o.no||'')} · ${o.createdAt?fmt(o.createdAt):''}${CFG.ag2&&o.status==='new'?' · ⏱ '+a+' min':''} · ${isDel(o)?'🛵':'🥡'} ${esc(o.name||'')} ${esc(o.phone||'')}</div><pre>${esc(String(o.text).replace(/\*/g,''))}</pre><button data-p="${o.id}" class="g">🖨 Drucken</button> ${o.status==='new'?`<button data-d="${o.id}">✔ Erledigt</button>`:`<button data-u="${o.id}" class="g">↩ Wiederherstellen</button> <button data-x="${o.id}" class="r">${armed===o.id?'Wirklich löschen?':'🗑 Löschen'}</button>`}</div>`});
+ $('#list').innerHTML=out||'<div class="o m">Keine Bestellungen</div>';flash()}
 $('#tn').onclick=()=>{TAB='n';draw()};$('#ta').onclick=()=>{TAB='a';draw()};$('#td').onclick=()=>{TAB='d';draw()};
 $('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
  try{
@@ -1411,10 +1479,11 @@ $('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;con
   else if(d.u)await updateDoc(doc(db,'orders',d.u),{status:'new'});
   else if(d.x){if(armed===d.x){armed=null;await deleteDoc(doc(db,'orders',d.x))}else{armed=d.x;draw();setTimeout(()=>{armed=null;draw()},4000)}}
  }catch(err){alert('Fehler: '+(err.code||err.message)+(d.x?'\n(Firestore-Regeln mit delete veröffentlichen)':''))}};
+applyUI();
 onAuthStateChanged(auth,u=>{$('#login').hidden=!!u;$('#app').hidden=!u;if(unsub)unsub();clearInterval(ring);if(!u)return;first=true;
  try{startAudio();if(ctx&&ctx.state==='running')$('#snd').textContent='🔔 Ton an'}catch(e){}
  wakeLock();
- unsub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(100)),snap=>{
+ unsub=onSnapshot(query(collection(db,'orders'),orderBy('createdAt','desc'),limit(CFG.lim)),snap=>{
   DOCS=snap.docs.map(d=>({id:d.id,...d.data()}));
   if(!first)snap.docChanges().forEach(c=>{if(c.type==='added'&&c.doc.data().status==='new'){const o=c.doc.data();beep(kindFor(o));if(shouldPrint(o))for(let i=0;i<CFG.cp;i++)setTimeout(()=>ticket(o),i*900)}});
   first=false;const n=DOCS.filter(d=>d.status==='new').length;$('#st').textContent=n?n+' neu':'';
